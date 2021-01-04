@@ -7,7 +7,7 @@
 #ifdef AUDIO_OPUS
 #include <opusfile.h>
 #else
-#ifdef _WIN32
+#if defined _MSC_VER && !defined REVC_NO_AUTOLINK
 #pragma comment( lib, "libsndfile-1.lib" )
 #pragma comment( lib, "libmpg123-0.lib" )
 #endif
