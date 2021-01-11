@@ -2,43 +2,58 @@ name: re3 conan+cmake
 on:
   pull_request:
   push:
-  release:
-    types: published
 jobs:
   build-cmake:
     strategy:
       matrix:
         include:
           - os: 'windows-latest'
+            arch: 'x86'
+            platform: 'gl3'
+            gl3_gfxlib: 'glfw'
+            audio: 'openal'
+          - os: 'windows-latest'
+            arch: 'x86_64'
             platform: 'gl3'
             gl3_gfxlib: 'glfw'
             audio: 'openal'
 #          - os: 'windows-latest'
+#            arch: 'x86'
 #            platform: 'gl3'
 #            gl3_gfxlib: 'sdl2'
 #            audio: 'openal'
           - os: 'windows-latest'
+            arch: 'x86'
+            platform: 'd3d9'
+            audio: 'miles'
+          - os: 'windows-latest'
+            arch: 'x86'
+            platform: 'gl3'
+            gl3_gfxlib: 'glfw'
+            audio: 'miles'
+          - os: 'windows-latest'
+            arch: 'x86'
             platform: 'd3d9'
             audio: 'openal'
-#          - os: 'windows-latest'
-#            platform: 'd3d9'
-#            audio: 'miles'
+          - os: 'windows-latest'
+            arch: 'x86_64'
+            platform: 'd3d9'
+            audio: 'openal'
           - os: 'ubuntu-latest'
+            arch: 'x86_64'
             platform: 'gl3'
             gl3_gfxlib: 'glfw'
             audio: 'openal'
-#          - os: 'ubuntu-latest'
-#            platform: 'gl3'
-#            gl3_gfxlib: 'sdl2'
-#            audio: 'openal'
+          - os: 'ubuntu-latest'
+            arch: 'x86'
+            platform: 'gl3'
+            gl3_gfxlib: 'sdl2'
+            audio: 'openal'
           - os: 'macos-latest'
+            arch: 'x86_64'
             platform: 'gl3'
             gl3_gfxlib: 'glfw'
             audio: 'openal'
-#          - os: 'macos-latest'
-#            platform: 'gl3'
-#            gl3_gfxlib: 'sdl2'
-#            audio: 'openal'
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ matrix.platform == 'ps2' || matrix.gl3_gfxlib == 'sdl2' || matrix.audio == 'miles' }}
     steps:
@@ -65,6 +80,14 @@ jobs:
           conan config set log.print_run_commands=True
           conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
           conan remote add madebr_ps2dev https://api.bintray.com/conan/madebr/ps2dev
+      - uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/.conan/data
+          key: ${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.platform }}-${{ matrix.audio }}-${{ matrix.gl3_gfxlib || 'glfw' }}
+          restore-keys: |
+            ${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.platform }}-${{ matrix.audio }}
+            ${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.platform }}
+            ${{ matrix.os }}-${{ matrix.arch }}
       - name: "Add os=playstation2 + gcc.version=3.2 to .conan/settings.yml"
         shell: python
         run: |
@@ -95,7 +118,7 @@ jobs:
           conan export re3mss miles-sdk/master@
       - name: "Download/build dependencies (conan install)"
         run: |
-          conan install ${{ github.workspace }} re3/master@ -if build -o re3:audio=${{ matrix.audio }} -o librw:platform=${{ matrix.platform }} -o librw:gl3_gfxlib=${{ matrix.gl3_gfxlib || 'glfw' }} --build missing -pr:h ./host_profile -pr:b default -s re3:build_type=RelWithDebInfo -s librw:build_type=RelWithDebInfo
+          conan install ${{ github.workspace }} re3/master@ -if build -o re3:audio=${{ matrix.audio }} -o librw:platform=${{ matrix.platform }} -o librw:gl3_gfxlib=${{ matrix.gl3_gfxlib || 'glfw' }} --build missing -pr:h ./host_profile -pr:b default -s re3:build_type=RelWithDebInfo -s librw:build_type=RelWithDebInfo -s arch=${{ matrix.arch }}
         env:
           CONAN_SYSREQUIRES_MODE: enabled
       - name: "Build re3 (conan build)"
@@ -114,3 +137,7 @@ jobs:
           name: "${{ matrix.os }}-${{ matrix.platform }}"
           path: build/*.tar.xz
           if-no-files-found: error
+      - name: Clean-up cache + remove librw
+        run: |
+          conan remove -b -s -f "*"
+          conan remove librw -f
