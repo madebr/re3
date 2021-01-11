@@ -41,7 +41,7 @@
 #pragma comment( lib, "strmiids.lib" )
 #pragma comment( lib, "dinput8.lib" )
 
-#if (defined(_MSC_VER))
+#if defined(_MSC_VER) && !defined(RE3_NO_AUTOLINK)
 #include <tchar.h>
 #endif /* (defined(_MSC_VER)) */
 #include <stdio.h>

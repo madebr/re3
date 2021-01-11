@@ -17,8 +17,9 @@
 #include "Frontend.h"
 #include "Timer.h"
 
-
+#if defined _MSC_VER && !defined RE3_NO_AUTOLINK
 #pragma comment( lib, "mss32.lib" )
+#endif
 
 cSampleManager SampleManager;
 uint32 BankStartOffset[MAX_SFX_BANKS];

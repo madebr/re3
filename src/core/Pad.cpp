@@ -11,10 +11,12 @@
 #include "platform.h"
 #ifdef XINPUT
 #include <xinput.h>
+#if defined(_MSC_VER) && !defined(RE3_NO_AUTOLINK)
 #if !defined(PSAPI_VERSION) || (PSAPI_VERSION > 1)
 #pragma comment( lib, "Xinput9_1_0.lib" )
 #else
 #pragma comment( lib, "Xinput.lib" )
+#endif
 #endif
 #endif
 
