@@ -104,12 +104,17 @@ class Re3Conan(ConanFile):
                            """
                            cmake_minimum_required(VERSION 3.0)
                            project(cmake_wrapper)
+
+                           # FIXME: remove and move to main cmake script once conan CMakeToolchain is fully functional.
+                           set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT {})
     
                            include("{}/conanbuildinfo.cmake")
                            conan_basic_setup(TARGETS NO_OUTPUT_DIRS)
     
                            add_subdirectory("{}" re3)
-                           """).format(self.install_folder.replace("\\", "/"),
+                           """).format(
+                                       self.name,
+                                       self.install_folder.replace("\\", "/"),
                                        self.source_folder.replace("\\", "/")))
         except FileNotFoundError:
             pass
