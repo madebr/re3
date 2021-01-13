@@ -67,9 +67,6 @@ class Re3Conan(ConanFile):
     def validate(self):
         if self.options["librw"].platform == "gl3" and self.options["librw"].gl3_gfxlib != "glfw":
             raise ConanInvalidConfiguration("Only `glfw` is supported as gl3_gfxlib.")
-        #if not self.options.with_opus:
-        #    if not self.options["libsndfile"].with_external_libs:
-        #        raise ConanInvalidConfiguration("re3 with opus support requires a libsndfile built with external libs (=ogg/flac/opus/vorbis)")
 
     @property
     def _re3_audio(self):
@@ -119,6 +116,7 @@ class Re3Conan(ConanFile):
         cmake = CMake(self)
         cmake.definitions["RE3_AUDIO"] = self._re3_audio
         cmake.definitions["RE3_WITH_OPUS"] = self.options.with_opus
+        cmake.definitions["RE3_WITH_LIBSNDFILE"] = self.options.with_libsndfile
         cmake.definitions["RE3_INSTALL"] = True
         cmake.definitions["RE3_VENDORED_LIBRW"] = False
         env = {}
