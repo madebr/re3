@@ -39,7 +39,14 @@ target_compile_definitions(${EXECUTABLE}
         $<IF:$<CONFIG:DEBUG>,DEBUG,NDEBUG>
         LIBRW
         RE3_NO_AUTOLINK
+        RELOCATABLE
 )
+if(STEAMID)
+    target_compile_definitions(${EXECUTABLE}
+        PRIVATE
+            STEAMID=${STEAMID}
+    )
+endif()
 
 if(LIBRW_PLATFORM_D3D9)
     target_compile_definitions(${EXECUTABLE}
@@ -109,6 +116,9 @@ set_target_properties(${EXECUTABLE}
         CXX_STANDARD 11
         CXX_EXTENSIONS OFF
         CXX_STANDARD_REQUIRED ON
+        VS_DEBUGGER_ENVIRONMENT "GTA3DIR=$<SHELL_PATH:${PROJECT_SOURCE_DIR}/gamefiles>"
+        VS_DEBUGGER_COMMAND_ARGUMENTS "-console"
+        VS_JUST_MY_CODE_DEBUGGING ON
 )
 
 if(RE3_INSTALL)

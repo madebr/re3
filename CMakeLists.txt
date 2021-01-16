@@ -1,4 +1,5 @@
 set(EXECUTABLE re3)
+set(STEAMID 12100)
 
 cmake_minimum_required(VERSION 3.8)
 project(${EXECUTABLE} C CXX)
