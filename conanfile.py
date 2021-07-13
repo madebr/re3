@@ -51,11 +51,11 @@ class Re3Conan(ConanFile):
         self.requires("librw/{}".format(self.version))
         self.requires("mpg123/1.26.4")
         if self.options.audio == "openal":
-            self.requires("openal/1.21.0")
+            self.requires("openal/1.21.1")
         elif self.options.audio == "miles":
             self.requires("miles-sdk/{}".format(self.version))
         if self.options.with_libsndfile:
-            self.requires("libsndfile/1.0.30")
+            self.requires("libsndfile/1.0.31")
         if self.options.with_opus:
             self.requires("opusfile/0.12")
 
