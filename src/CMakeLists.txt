@@ -120,6 +120,13 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     )
 endif()
 
+if(${PROJECT}_CRASH_REPORT)
+    include(CrashpadFunctions)
+    crashpad_create_symbol_file(re3)
+    target_compile_definitions(${EXECUTABLE} PRIVATE CRASH_REPORT)
+    target_link_libraries(${EXECUTABLE} PRIVATE Crashpad::client)
+endif()
+
 set_target_properties(${EXECUTABLE}
     PROPERTIES
         C_STANDARD 11

@@ -18,6 +18,7 @@ endif()
 
 set(${PROJECT}_AUDIO "OAL" CACHE STRING "Audio")
 
+option(${PROJECT}_CRASH_REPORT "Enable crash reporting" OFF)
 option(${PROJECT}_WITH_OPUS "Build ${EXECUTABLE} with opus support" OFF)
 option(${PROJECT}_WITH_LIBSNDFILE "Build ${EXECUTABLE} with libsndfile (instead of internal decoder)" OFF)
 
@@ -26,6 +27,19 @@ message(STATUS "${PROJECT}_AUDIO = ${${PROJECT}_AUDIO} (choices=${${PROJECT}_AUD
 set("${PROJECT}_AUDIO_${${PROJECT}_AUDIO}" ON)
 if(NOT ${PROJECT}_AUDIO IN_LIST ${PROJECT}_AUDIOS)
     message(FATAL_ERROR "Illegal ${PROJECT}_AUDIO=${${PROJECT}_AUDIO}")
+endif()
+
+if(${PROJECT}_CRASH_REPORT)
+    #find_package(CrashpadSupport REQUIRED)
+    #set(${PROJECT}_BREAKPAD_SYMBOLS_FILE "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE}.sym")
+    #add_custom_command(
+    #    OUTPUT "${${PROJECT}_BREAKPAD_SYMBOLS_FILE}"
+    #    COMMAND ${CRASHPAD_DUMP_SYMS_PROGRAM} "$<TARGET_FILE:re3>" >"${${PROJECT}_BREAKPAD_SYMBOLS_FILE}"
+    #    DEPENDS re3
+    #)
+    #add_custom_target(generate_symbols ALL
+    #    DEPENDS "${${PROJECT}_BREAKPAD_SYMBOLS_FILE}"
+    #)
 endif()
 
 option(${PROJECT}_VENDORED_LIBRW "Use vendored librw" ON)
@@ -71,6 +85,9 @@ if(${PROJECT}_INSTALL)
             message(WARNING "Unknown os. Created cpack package will be wrong. (override using cpack -P)")
         endif()
     endif()
+    #if(${PROJECT}_CRASH_REPORT)
+    #    install(FILES "${${PROJECT}_BREAKPAD_SYMBOLS_FILE}" DESTINATION ".")
+    #endif()
 
     set(CPACK_PACKAGE_NAME "${PROJECT_NAME}${platform}${audio}${os}${compiler}")
     set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "GTA III reversed")

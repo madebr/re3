@@ -10,14 +10,16 @@ class Re3Conan(ConanFile):
     version = "master"
     license = "???"  # FIXME: https://github.com/GTAmodding/re3/issues/794
     settings = "os", "arch", "compiler", "build_type"
-    generators = "cmake", "cmake_find_package"
+    generators = ["cmake", "cmake_find_package"]
     options = {
         "audio": ["openal", "miles"],
+        "crash_report": [True, False],
         "with_libsndfile": [True, False],
         "with_opus": [True, False],
     }
     default_options = {
         "audio": "openal",
+        "crash_report": False,
         "with_libsndfile": False,
         "with_opus": False,
         # "libsndfile:with_external_libs": False,
@@ -46,6 +48,12 @@ class Re3Conan(ConanFile):
     def configure(self):
         if self.options.audio != "openal":
             self.options.with_libsndfile = False
+        if self.options.crash_report:
+            self.generators.append("pkg_config")
+
+    @property
+    def _breakpad_recipe(self):
+        return "breakpad/cci.20210521"
 
     def requirements(self):
         self.requires("librw/{}".format(self.version))
@@ -58,6 +66,13 @@ class Re3Conan(ConanFile):
             self.requires("libsndfile/1.0.31")
         if self.options.with_opus:
             self.requires("opusfile/0.12")
+        if self.options.crash_report:
+            self.requires(self._breakpad_recipe)
+
+    def build_requirements(self):
+        if self.options.crash_report:
+            self.build_requires("pkgconf/1.7.4")
+            self.build_requires(self._breakpad_recipe)
 
     def export_sources(self):
         for d in ("cmake", "src"):
@@ -118,6 +133,7 @@ class Re3Conan(ConanFile):
             pass
         cmake = CMake(self)
         cmake.definitions["RE3_AUDIO"] = self._re3_audio
+        cmake.definitions["RE3_CRASH_REPORT"] = self.options.crash_report
         cmake.definitions["RE3_WITH_OPUS"] = self.options.with_opus
         cmake.definitions["RE3_INSTALL"] = True
         cmake.definitions["RE3_VENDORED_LIBRW"] = False

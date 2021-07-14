@@ -34,6 +34,7 @@ long _dwOperatingSystemVersion;
 #include "platform.h"
 #include "crossplatform.h"
 
+#include "crash_report.h"
 #include "main.h"
 #include "FileMgr.h"
 #include "Text.h"
@@ -1754,6 +1755,23 @@ windowIconifyCB(GLFWwindow* window, int iconified) {
 	WindowIconified = !!iconified;
 }
 
+#ifdef CRASH_REPORT
+static bool
+breakpad_callback(const google_breakpad::MinidumpDescriptor &descriptor,
+	void *context,
+	bool succeeded)
+{
+    char path_message[PATH_MAX];
+    snprintf(path_message, sizeof(path_message), "Dump path: %s", descriptor.path());
+#ifdef _WIN32
+	MessageBox(NULL, path_message, "")
+#else
+  	printf("%s\n", path_message);
+#endif
+    return succeeded;
+}
+#endif
+
 /*
  *****************************************************************************
  */
@@ -1784,6 +1802,16 @@ int
 main(int argc, char *argv[])
 {
 #endif
+													\
+    google_breakpad::MinidumpDescriptor breakpad_handler_descriptor(".");
+    google_breakpad::ExceptionHandler breakpad_handler(
+      breakpad_handler_descriptor,
+      /* filter */ nullptr,
+      breakpad_callback,
+      /* context */ nullptr,
+      /* install handler */ true,
+      /* server FD */ -1
+    );
 	RwV2d pos;
 	RwInt32 i;
 
